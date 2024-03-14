@@ -1,6 +1,6 @@
 <script setup>
-    import MillStart from '../components/MillStart.vue';
-    import MillEnd from '../components/MillEnd.vue';
+import MillStart from '../components/MillStart.vue';
+import MillEnd from '../components/MillEnd.vue';
 </script>
 
 <template>
@@ -8,6 +8,4 @@
   <MillEnd></MillEnd>
 </template>
 
-<style scoped>
-  
-</style>
+<style scoped></style>
