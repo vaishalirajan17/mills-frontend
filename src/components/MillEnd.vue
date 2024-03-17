@@ -80,13 +80,26 @@ function stop(millId, rotorId) {
     action: 'STOP'
   };
 
+  isStartError.value = false;
+  startError.value = "";
+  isStartSuccess.value = false;
+  startSucess.value = "";
+
   console.log(request);
   axios.post('http://localhost:8080/millOpt', request)
     .then(function (response) {
       console.log(response);
-      isStartSuccess.value = true;
-      startSucess.value = "Mill Stopped";
-      stopDisplay();
+
+      if(response.data.errorCode != null && response.data.errorCode != '') {
+        startError.value = response.data.errorMsg;
+        isStartError.value = true;
+        return;
+      } else {
+        isStartSuccess.value = true;
+        startSucess.value = "Mill Stopped";
+        stopDisplay();
+      }
+      
     })
     .catch(function (error) {
       startError.value = "Error in stopping motor. Please try again later"

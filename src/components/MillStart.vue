@@ -4,7 +4,7 @@ import { ref } from "vue";
 import emitter from 'tiny-emitter/instance';
 
 // Define reactive variables
-var selectedDateTime = "";
+var selectedDateTime = [];
 var startError = ref("");
 var isStartError = ref(false);
 var isStartSuccess = ref(false);
@@ -32,8 +32,8 @@ function getMapping() {
 }
 
 // Function to handle mill start
-function start(mill, rotor) {
-  if (selectedDateTime === null || selectedDateTime === '') {
+function start(mill, rotor, index) {
+  if (selectedDateTime === null || selectedDateTime[index] === '') {
     isStartError.value = true;
     startError.value = "Please select a date and time to start.";
     return;
@@ -48,7 +48,7 @@ function start(mill, rotor) {
     millId: mill,
     rotorId: rotor,
     component: '00',
-    startTime: selectedDateTime,
+    startTime: selectedDateTime[index],
     action: 'STRT'
   };
 
@@ -57,9 +57,17 @@ function start(mill, rotor) {
   axios.post('http://localhost:8080/millOpt', request)
     .then(function (response) {
       console.log(response);
+
+      //validations for start date
+      if(response.data.errorCode != null && response.data.errorCode != '') {
+        startError.value = response.data.errorMsg;
+        isStartError.value = true;
+        return;
+      }
+
       isStartSuccess.value = true;
       startSuccess.value = "Mill Started";
-      buttonText.value = "START";
+      buttonText.value = "START"; 
       getMapping();
       emitter.emit('refreshRunningMill');
     })
@@ -67,7 +75,6 @@ function start(mill, rotor) {
       startError.value = "Error in starting mill. Please try again later";
       isStartError.value = true;
       buttonText.value = "START";
-      startSuccess.value = "Mill Stopped";
     });
 }
 
@@ -128,19 +135,19 @@ function next() {
         </tr>
       </thead>
       <tbody>
-        <tr v-for="run in millRotor" class="bg-slate-900 border-b border-gray-700 text-white text-center">
+        <tr v-for="({millId,rotorId },index) in millRotor" class="bg-slate-900 border-b border-gray-700 text-white text-center">
           <th scope="row" class="px-7 py-4 font-medium whitespace-nowrap text-white">
-            {{ run.millId }}
+            {{ millId }}
           </th>
           <td class="px-7 py-4">
-            {{ run.rotorId }}
+            {{ rotorId }}
           </td>
           <td class="px-7 py-4">
             <input class="bg-slate-900 light:[color-scheme:light]" type="datetime-local" id="selectedDateTime"
-              v-model="selectedDateTime">
+              v-model="selectedDateTime[index]">
           </td>
           <td class="px-7 py-4">
-            <button class="bg-red-700 py-2 rounded-md min-w-24" @click="start(run.millId, run.rotorId)">START</button>
+            <button class="bg-red-700 py-2 rounded-md min-w-24" @click="start(millId, rotorId, index)">START</button>
           </td>
         </tr>
       </tbody>
@@ -163,7 +170,7 @@ function next() {
   <div v-if="isStartSuccess" class="bg-green-100 border border-green-400 text-green-700  py-3 px-10 rounded relative"
     role="alert">
     <strong class="font-bold">Success! </strong>
-    <span class="block sm:inline">{{ startSucess }}</span>
+    <span class="block sm:inline">{{ startSuccess }}</span>
   </div>
 </template>
 

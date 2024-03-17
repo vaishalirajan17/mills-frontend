@@ -4,8 +4,11 @@ import { BsCalendar4Range } from '@kalimahapps/vue-icons';
 
 <template>
   
-  <div class="flex flex-row justify-around text-white ">
-    <div class="bg-slate-900 h-screen w-1/6 flex flex-col justify-center align-middle text-center border-r-2 border-r-slate-800">
+  <div class="flex flex-row justify-around text-white bg-slate-900 ">
+    <!-- <span class="material-symbols-outlined mx-10 my">
+      menu
+    </span> -->
+    <div class="bg-slate-900 h-screen w-1/12 flex flex-col justify-center align-middle text-center border-r-2 border-r-slate-800">
         <router-link tag="li" to="/" class="py-5 flex justify-center m-4 rounded-lg" ><span class="material-symbols-outlined px-2">
           home
           </span> HOME</router-link>
@@ -20,7 +23,7 @@ import { BsCalendar4Range } from '@kalimahapps/vue-icons';
           </span> MAPPER</router-link>
     </div>
     
-    <div class="bg-slate-900  h-screen w-5/6 flex flex-col items-center">
+    <div class="bg-slate-900  h-screen w-11/12 flex flex-col items-center">
       <router-view></router-view>
     </div>
   </div>
