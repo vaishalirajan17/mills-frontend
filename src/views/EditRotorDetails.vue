@@ -17,7 +17,7 @@ const router = useRouter();
 var remarks = "";
 
 // Initialize display and dropdown
-resetDisplay();
+resetEditDisplay();
 millsDrpDown();
 
 if(localStorage.getItem('login') == null || localStorage.getItem('login') == '') {
@@ -25,7 +25,7 @@ if(localStorage.getItem('login') == null || localStorage.getItem('login') == '')
 }
 
 // Function to fetch reset component data
-function resetDisplay() {
+function resetEditDisplay() {
 
   isStartError.value = false;
   startError.value = "";
@@ -61,77 +61,7 @@ function millsDrpDown() {
     })
   
 }
-
-// Function to reset
-function reset(mill, rotor, comp, overAllDate,index) {
-  if (!resetTime[index]) {
-    isStartError.value = true;
-    startError.value = "Please select reset time to reset.";
-  } else if (resetTime[index] <= overAllDate) {
-    isStartError.value = true;
-    startError.value = "Reset Date Time cannot be greater than overall date Time.";
-  }
-
-  if (isStartError.value) {
-    return;
-  }
-
-  isStartError.value = false;
-  startError.value = "";
-  isStartSuccess.value = false;
-  startSuccess.value = "";
-
-  var request = {
-    millId: mill,
-    rotorId: rotor,
-    component: comp,
-    action: 'RSET',
-    startTime: resetTime[index]
-  };
-
-  console.log(request);
-
-  axios.post('http://localhost:8080/millOpt', request)
-    .then(function (response) {
-      console.log(response);
-      isStartSuccess.value = true;
-      startSuccess.value = "Reset successful";
-      //resetDisplay();
-    })
-    .catch(function (error) {
-      startError.value = "Error in resetting rotor. Please try again later";
-      isStartError.value = true;
-    });
-}  
-
-function addRemarks() {
-
-  isStartError.value = false;
-  startError.value = "";
-  isStartSuccess.value = false;
-  startSuccess.value = "";
-
-  var local_logind = localStorage.getItem('login');
-  var request = {
-    remarks: remarks,
-    millId: selectedMillId,
-    remarkLoginId: local_logind,
-    remarkType: "Maintenance"
-  };
-  console.log(request);
-
-  axios.post('http://localhost:8080/remarks', request)
-    .then(function (response) {
-      console.log(response);
-      isStartSuccess.value = true;
-      startSuccess.value = "Remarks added.";
-    })
-    .catch(function (error) {
-      startError.value = "Error in adding remarks. Please try again later";
-      isStartError.value = true;
-    });
-
-}
+ 
 </script>
 
 <template>
@@ -149,25 +79,7 @@ function addRemarks() {
         </select>
         </div>
       </div>
-      
-      <div class = "flex flex-col w-2/4">
-            <div class="">
-                <label for="conpassword" class="block text-sm font-medium leading-6 text-white" >Boiler Maintenance Remarks</label>
-            </div>
-            <div class="mt-2">
-              <textarea class="bg-slate-900 rounded-md border-2 light:[color-scheme:light] px-28"></textarea>
-
-                <!-- <input id="remarks" name="remarks" type="text" class="bg-slate-900 rounded-md border-2 light:[color-scheme:light]" v-model="remarks"/> -->
-            </div>
-      </div>
-        <div class="mt-10 w-1/4 ">
-          <button class="bg-sky-700 py-2 px-8 shadow-xl rounded-md min-w-34 mx-10"
-          @click="addRemarks">Submit&nbsp;Remarks</button>
-        </div>
           
-      <div>
-
-      </div>
     </div>
     <table class="w-full text-sm text-left rtl:text-right text-gray-500 mt-10">
       <thead class="text-xs text-white uppercase bg-gray-700">
@@ -182,7 +94,7 @@ function addRemarks() {
             COMPONENT
           </th>
           <th scope="col" class="px-6 py-3">
-            RESET TIME
+            OVERALL DATE TIME
           </th>
           <th scope="col" class="px-6 py-3">
             RUNNING HOURS
@@ -204,15 +116,14 @@ function addRemarks() {
             {{ comp.componentName }}
           </td>
           <td class="px-6 py-4">
-            <input class="bg-slate-900 light:[color-scheme:light]" type="datetime-local" id="resetTime"
-              v-model="resetTime[index]">
+            {{ comp.overAllDate }}
           </td>
           <td class="px-6 py-4">
             {{ comp.runningHours }}
           </td>
           <td class="px-6 py-4">
             <button class="bg-rose-700 py-2 rounded-md min-w-24 disabled:bg-gray-300"
-              @click="reset(comp.millId, comp.rotorId, comp.componentName, comp.overAllDate,index)">RESET</button>
+              @click="">DELETE</button>
           </td>
         </tr>
       </tbody>

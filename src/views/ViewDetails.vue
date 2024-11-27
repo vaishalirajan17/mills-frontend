@@ -2,13 +2,16 @@
 import { ref } from "vue";
 import axios from "axios";
 import moment from 'moment';
+import { useRouter } from 'vue-router'
 
 // Define reactive variables
 var history = ref([]);
 var temp = [];
-
+const router = useRouter();
 // Fetch and format view details
 view();
+
+
 
 function view() {
   axios
@@ -38,18 +41,23 @@ function view() {
           hist.status = "--";
         }
 
-        if (!hist.remarks || hist.remarks === 'AA') {
+        if (hist.remarks == null || hist.remarks == "null") {
           hist.remarks = "--";
+        }
+
+        if (!hist.boilerRemarks) {
+          hist.boilerRemarks = "--";
         }
 
         history.value.push(hist);
       }
     });
 }
+
 </script>
 
 <template>
-  <div class="overflow-x-auto mt-10">
+  <div class="overflow-x-auto mt-5">
 
     <table class="w-full text-sm text-left rtl:text-right text-gray-500">
       <thead class="text-xs text-white uppercase bg-gray-700">
@@ -76,35 +84,41 @@ function view() {
             STATUS
           </th>
           <th scope="col" class="px-6 py-3">
-            REMARKS
+            OPERATION REMARKS
+          </th>
+          <th scope="col" class="px-6 py-3">
+            BOILER MAINTENANCE REMARKS
           </th>
         </tr>
       </thead>
       <tbody>
         <tr v-for="his in history" class="bg-slate-900 border-b border-gray-700 text-white text-center">
-          <th scope="row" class="px-7 py-4 font-medium whitespace-nowrap text-white">
+          <th scope="row" class="px-6 py-4 font-medium whitespace-nowrap text-white">
             {{ his.millId }}
           </th>
-          <td class="px-7 py-4">
+          <td class="px-6 py-4">
             {{ his.rotorId }}
           </td>
-          <td class="px-7 py-4">
+          <td class="px-6 py-4">
             {{ his.fdpHours }}
           </td>
-          <td class="px-7 py-4">
+          <td class="px-6 py-4">
             {{ his.vanePadHours }}
           </td>
-          <td class="px-7 py-4">
+          <td class="px-6 py-4">
             {{ his.fdpDate }}
           </td>
-          <td class="px-7 py-4">
+          <td class="px-6 py-4">
             {{ his.vanePadDate }}
           </td>
-          <td class="px-7 py-4">
+          <td class="px-6 py-4">
             {{ his.status }}
           </td>
-          <td class="px-7 py-4">
+          <td class="px-6 py-4">
             {{ his.remarks }}
+          </td>
+          <td class="px-6 py-4">
+            {{ his.boilerRemarks }}
           </td>
         </tr>
       </tbody>

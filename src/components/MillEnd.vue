@@ -4,7 +4,9 @@ import { ref } from "vue";
 import emitter from 'tiny-emitter/instance';
 
 // Define reactive variables
-var endTime = "";
+var endTime = [];
+var remarks = ref([]);
+var selectedRemarks = "";
 var runs = ref([]);
 var limit = 2;
 var count = 0;
@@ -22,6 +24,10 @@ emitter.on('refreshRunningMill', function () {
 
 // Initialize the display
 stopDisplay();
+var remarks = [
+                "For Maintenance","Leak","Tripped","Change Over","Vibration","Unit Light Up","Unit Shutdown",
+                "Due to other mill problem","Due to LHS Problem","Due to AHS Problem","For Test Purpose","For Lignite Conservation"
+              ];
 
 // Function to fetch and display running mills
 var temp = [];
@@ -71,13 +77,23 @@ function next() {
 }
 
 // Function to stop a mill
-function stop(millId, rotorId) {
+function stop(millId, rotorId,index) {
+
+  if (!endTime[index]) {
+    isStartError.value = true;
+    startError.value = "Please select a date and time to stop.";
+    return;
+  }
+  var loginId_local = localStorage.getItem('login');
+  
   var request = {
     millId: millId,
     rotorId: rotorId,
     component: '00',
-    startTime: endTime,
-    action: 'STOP'
+    startTime: endTime[index],
+    action: 'STOP',
+    remarks: selectedRemarks,
+    loginId: loginId_local
   };
 
   isStartError.value = false;
@@ -98,6 +114,8 @@ function stop(millId, rotorId) {
         isStartSuccess.value = true;
         startSucess.value = "Mill Stopped";
         stopDisplay();
+        remarks = [];
+        endTime = [];
       }
       
     })
@@ -123,12 +141,15 @@ function stop(millId, rotorId) {
             END TIME
           </th>
           <th scope="col" class="px-20 py-3">
+            STOP REMARKS
+          </th>
+          <th scope="col" class="px-20 py-3">
             ACTION
           </th>
         </tr>
       </thead>
       <tbody>
-        <tr v-for="run in runs" class="bg-slate-900 border-b border-gray-700 text-white text-center">
+        <tr v-for="run,index in runs" class="bg-slate-900 border-b border-gray-700 text-white text-center">
           <th scope="row" class="px-7 py-4 font-medium whitespace-nowrap text-white">
             {{ run.millId }}
           </th>
@@ -136,10 +157,16 @@ function stop(millId, rotorId) {
             {{ run.rotorId }}
           </td>
           <td class="px-7 py-4">
-            <input class="bg-slate-900 light:[color-scheme:light]" type="datetime-local" id="endTime" v-model="endTime">
+            <input class="bg-slate-900 light:[color-scheme:light]" type="datetime-local" id="endTime" v-model="endTime[index]">
           </td>
           <td class="px-7 py-4">
-            <button class="bg-red-700 py-2 rounded-md min-w-24" @click="stop(run.millId, run.rotorId)">STOP</button>
+            <select class="bg-white-900 bg-gray-700 px-5 rounded-md py-1" name="mill" id="mill_id" v-model="selectedRemarks">
+                <option class="text-slate-500" value="">Select Remarks</option>
+                <option v-for="remark in remarks">{{ remark }}</option>
+              </select>
+          </td>
+          <td class="px-7 py-4">
+            <button class="bg-red-700 py-2 rounded-md min-w-24" @click="stop(run.millId, run.rotorId,index)">STOP</button>
           </td>
         </tr>
       </tbody>

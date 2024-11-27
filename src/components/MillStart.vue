@@ -5,6 +5,8 @@ import emitter from 'tiny-emitter/instance';
 
 // Define reactive variables
 var selectedDateTime = [];
+var selectedRemarks = "";
+var remarks = ref([]);
 var startError = ref("");
 var isStartError = ref(false);
 var isStartSuccess = ref(false);
@@ -20,6 +22,12 @@ var temp = [];
 // Fetch initial data
 getMapping();
 
+var remarks = [
+                "For Maintenance","Leak","Tripped","Change Over","Vibration","Unit Light Up","Unit Shutdown",
+                "Due to other mill problem","Due to LHS Problem","Due to AHS Problem","For Test Purpose","For Lignite Conservation"
+              ];
+
+
 // Function to fetch mapping data
 function getMapping() {
   axios
@@ -31,9 +39,14 @@ function getMapping() {
     })
 }
 
+function getFormattedDate(date) {
+    return moment(date).format("DD-MM-YYYY hh:mm:ss")
+}
+
 // Function to handle mill start
-function start(mill, rotor, index) {
-  if (selectedDateTime === null || selectedDateTime[index] === '') {
+function start(mill, rotor, index, remark) {
+
+  if (!selectedDateTime[index]) {
     isStartError.value = true;
     startError.value = "Please select a date and time to start.";
     return;
@@ -43,18 +56,21 @@ function start(mill, rotor, index) {
   startError.value = "";
   isStartSuccess.value = false;
   startSuccess.value = "";
+  var loginId_local = localStorage.getItem('login');
 
   var request = {
     millId: mill,
     rotorId: rotor,
     component: '00',
     startTime: selectedDateTime[index],
-    action: 'STRT'
+    action: 'STRT',
+    remarks:selectedRemarks,
+    loginId: loginId_local
   };
 
   console.log(request);
 
-  axios.post('http://localhost:8080/millOpt', request)
+    axios.post('http://localhost:8080/millOpt', request)
     .then(function (response) {
       console.log(response);
 
@@ -70,6 +86,8 @@ function start(mill, rotor, index) {
       buttonText.value = "START"; 
       getMapping();
       emitter.emit('refreshRunningMill');
+      selectedDateTime = [];
+      remarks = [];
     })
     .catch(function (error) {
       startError.value = "Error in starting mill. Please try again later";
@@ -130,6 +148,9 @@ function next() {
             START TIME
           </th>
           <th scope="col" class="px-20 py-3">
+            START REMARKS
+          </th>
+          <th scope="col" class="px-20 py-3">
             ACTION
           </th>
         </tr>
@@ -147,7 +168,13 @@ function next() {
               v-model="selectedDateTime[index]">
           </td>
           <td class="px-7 py-4">
-            <button class="bg-red-700 py-2 rounded-md min-w-24" @click="start(millId, rotorId, index)">START</button>
+              <select class="bg-white-900 bg-gray-700 px-5 rounded-md py-1" name="remark" id="remark" v-model="selectedRemarks">
+                <option class="text-slate-500" value="">Select Remarks</option>
+                <option v-for="remark in remarks">{{ remark }}</option>
+              </select>
+          </td>
+          <td class="px-7 py-4">
+            <button class="bg-red-700 py-2 rounded-md min-w-24" @click="start(millId, rotorId, index,remark)">START</button>
           </td>
         </tr>
       </tbody>

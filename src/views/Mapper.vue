@@ -1,6 +1,7 @@
 <script setup>
 import axios from "axios";
 import { ref } from "vue";
+import { useRouter } from 'vue-router'
 
 // Define reactive variables
 var mills = ref([]);
@@ -13,11 +14,16 @@ var startError = ref("");
 var startSuccess = ref("");
 var buttonText = ref("");
 
+const router = useRouter();
+
 // Initialize button text
 buttonText.value = "CREATE MAPPING";
 
 // Fetch data
 getData();
+if(localStorage.getItem('login') == null || localStorage.getItem('login') == '') {
+        router.push('login');
+}
 
 // Function to fetch data
 function getData() {
